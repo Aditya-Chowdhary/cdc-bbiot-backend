@@ -35,7 +35,7 @@ func NewServer() *http.Server {
 	}
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf("%d", News.port),
+		Addr:         fmt.Sprintf(":%d", News.port),
 		Handler:      News.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
