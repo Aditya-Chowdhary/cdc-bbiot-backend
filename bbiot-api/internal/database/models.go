@@ -29,10 +29,10 @@ type ProductType struct {
 }
 
 type User struct {
-	ID           int64  `json:"id"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	PasswordHash []byte `json:"password_hash"`
-	Role         string `json:"role"`
-	LocationID   *int64 `json:"location_id"`
+	ID           int64   `json:"id"`
+	Username     string  `json:"username"`
+	Email        *string `json:"email"`
+	PasswordHash []byte  `json:"password_hash"`
+	Role         string  `json:"role"`
+	LocationID   *int64  `json:"location_id"`
 }

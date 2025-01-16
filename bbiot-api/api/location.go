@@ -46,7 +46,7 @@ func (s *Server) GetAllLocations(ctx *gin.Context) {
 		return
 	} else if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf("error while adding location: %s", err.Error()),
+			"error": fmt.Sprintf("error while retrieving locations: %s", err.Error()),
 		})
 		return
 	}

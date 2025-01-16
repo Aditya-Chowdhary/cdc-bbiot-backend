@@ -35,7 +35,7 @@ func NewServer() *http.Server {
 	}
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf("localhost:%d", News.port),
+		Addr:         fmt.Sprintf("%d", News.port),
 		Handler:      News.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -58,6 +58,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.POST("/products/new", s.NewProduct)
 	r.GET("/products", s.GetAllProducts)
+	r.POST("/products/update", s.UpdateInventory)
 
 	r.POST("/locations/new", s.AddLocation)
 	r.GET("/locations", s.GetAllLocations)

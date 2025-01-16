@@ -9,6 +9,45 @@ import (
 	"context"
 )
 
+const getProductTypeByName = `-- name: GetProductTypeByName :one
+SELECT id, name, code
+FROM product_types
+WHERE name=$1
+`
+
+func (q *Queries) GetProductTypeByName(ctx context.Context, name string) (ProductType, error) {
+	row := q.db.QueryRow(ctx, getProductTypeByName, name)
+	var i ProductType
+	err := row.Scan(&i.ID, &i.Name, &i.Code)
+	return i, err
+}
+
+const listProducts = `-- name: ListProducts :many
+SELECT id, name, code
+FROM product_types
+ORDER BY id
+`
+
+func (q *Queries) ListProducts(ctx context.Context) ([]ProductType, error) {
+	rows, err := q.db.Query(ctx, listProducts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProductType
+	for rows.Next() {
+		var i ProductType
+		if err := rows.Scan(&i.ID, &i.Name, &i.Code); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const newProduct = `-- name: NewProduct :one
 INSERT INTO product_types (name, code)
 VALUES ($1, $2)
