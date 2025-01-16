@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS product_tag_list;
