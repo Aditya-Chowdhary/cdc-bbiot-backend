@@ -17,7 +17,15 @@ import (
 )
 
 func InitialiseDB() (*pgxpool.Pool, error) {
-	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL")+"?sslmode=disable")
+	var (
+		dbpool *pgxpool.Pool
+		err    error
+	)
+	if os.Getenv("environment") == "local" {
+		dbpool, err = pgxpool.New(context.Background(), os.Getenv("DB_URL")+"?sslmode=disable")
+	} else {
+		dbpool, err = pgxpool.New(context.Background(), os.Getenv("DB_URL")+"?sslmode=require")
+	}
 	if err != nil {
 
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
