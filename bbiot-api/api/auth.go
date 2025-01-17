@@ -22,6 +22,7 @@ func (s *Server) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
 
 	dbx := database.New(s.db)
@@ -30,16 +31,19 @@ func (s *Server) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "user not found",
 		})
+		return
 	} else if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("internal server error: %s", err.Error()),
 		})
+		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(request.Password)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Sprintf("incorrect password: %s", err.Error()),
 		})
+		return
 	}
 
 	token, err := auth.CreateJWTToken(user.Username, user.Role, auth.JWTSecret)
@@ -47,6 +51,7 @@ func (s *Server) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Error while creating JWT token",
 		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
