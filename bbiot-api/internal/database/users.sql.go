@@ -85,3 +85,29 @@ func (q *Queries) MapUserToLocationName(ctx context.Context, arg MapUserToLocati
 	)
 	return i, err
 }
+
+const newUser = `-- name: NewUser :one
+INSERT INTO users(username, password_hash, email) 
+VALUES ($1, $2, $3)
+RETURNING id, username, email, password_hash, role, location_id
+`
+
+type NewUserParams struct {
+	Username     string  `json:"username"`
+	PasswordHash []byte  `json:"password_hash"`
+	Email        *string `json:"email"`
+}
+
+func (q *Queries) NewUser(ctx context.Context, arg NewUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, newUser, arg.Username, arg.PasswordHash, arg.Email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.LocationID,
+	)
+	return i, err
+}

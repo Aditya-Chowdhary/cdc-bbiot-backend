@@ -19,3 +19,8 @@ UPDATE users
 SET location_id = (SELECT l.id from locations l where l.location = $1)
 WHERE users.id = (SELECT u.id from users u where u.username=$2)
 RETURNING *;
+
+-- name: NewUser :one
+INSERT INTO users(username, password_hash, email) 
+VALUES ($1, $2, $3)
+RETURNING *;

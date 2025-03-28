@@ -71,10 +71,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/health", s.healthHandler)
 
 	r.POST("/auth/login", s.login)
+	r.POST("/auth/register", s.register)
 
 	r.POST("/products/new", s.NewProduct)
 	r.GET("/products", s.GetAllProducts)
 	r.POST("/products/update", s.UpdateInventory)
+
+	r.GET("/inventory", s.TransferList)
 
 	r.POST("/locations/new", s.AddLocation)
 	r.GET("/locations", s.GetAllLocations)
