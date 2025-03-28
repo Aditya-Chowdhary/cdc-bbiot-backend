@@ -10,7 +10,7 @@ import (
 )
 
 const getProductTypeByName = `-- name: GetProductTypeByName :one
-SELECT id, name, code
+SELECT id, name, code, img
 FROM product_types
 WHERE name=$1
 `
@@ -18,12 +18,17 @@ WHERE name=$1
 func (q *Queries) GetProductTypeByName(ctx context.Context, name string) (ProductType, error) {
 	row := q.db.QueryRow(ctx, getProductTypeByName, name)
 	var i ProductType
-	err := row.Scan(&i.ID, &i.Name, &i.Code)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Code,
+		&i.Img,
+	)
 	return i, err
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT id, name, code
+SELECT id, name, code, img
 FROM product_types
 ORDER BY id
 `
@@ -37,7 +42,12 @@ func (q *Queries) ListProducts(ctx context.Context) ([]ProductType, error) {
 	var items []ProductType
 	for rows.Next() {
 		var i ProductType
-		if err := rows.Scan(&i.ID, &i.Name, &i.Code); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Code,
+			&i.Img,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -49,19 +59,25 @@ func (q *Queries) ListProducts(ctx context.Context) ([]ProductType, error) {
 }
 
 const newProduct = `-- name: NewProduct :one
-INSERT INTO product_types (name, code)
-VALUES ($1, $2)
-RETURNING id, name, code
+INSERT INTO product_types (name, code, img)
+VALUES ($1, $2, $3)
+RETURNING id, name, code, img
 `
 
 type NewProductParams struct {
 	Name string `json:"name"`
 	Code string `json:"code"`
+	Img  []byte `json:"img"`
 }
 
 func (q *Queries) NewProduct(ctx context.Context, arg NewProductParams) (ProductType, error) {
-	row := q.db.QueryRow(ctx, newProduct, arg.Name, arg.Code)
+	row := q.db.QueryRow(ctx, newProduct, arg.Name, arg.Code, arg.Img)
 	var i ProductType
-	err := row.Scan(&i.ID, &i.Name, &i.Code)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Code,
+		&i.Img,
+	)
 	return i, err
 }

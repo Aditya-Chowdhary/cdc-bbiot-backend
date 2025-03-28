@@ -30,6 +30,7 @@ type ProductType struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
 	Code string `json:"code"`
+	Img  []byte `json:"img"`
 }
 
 type User struct {

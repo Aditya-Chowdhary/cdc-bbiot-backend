@@ -10,25 +10,39 @@ import (
 )
 
 const listInventoryByLocation = `-- name: ListInventoryByLocation :many
-SELECT id, product_type_id, location_id, stock
-FROM inventory
+SELECT i.id, i.product_type_id, i.location_id, i.stock, pt.name, pt.code, pt.img
+FROM inventory i
+inner join product_types pt on i.product_type_id = pt.id
 WHERE location_id = $1
 `
 
-func (q *Queries) ListInventoryByLocation(ctx context.Context, locationID int64) ([]Inventory, error) {
+type ListInventoryByLocationRow struct {
+	ID            int64  `json:"id"`
+	ProductTypeID int64  `json:"product_type_id"`
+	LocationID    int64  `json:"location_id"`
+	Stock         int32  `json:"stock"`
+	Name          string `json:"name"`
+	Code          string `json:"code"`
+	Img           []byte `json:"img"`
+}
+
+func (q *Queries) ListInventoryByLocation(ctx context.Context, locationID int64) ([]ListInventoryByLocationRow, error) {
 	rows, err := q.db.Query(ctx, listInventoryByLocation, locationID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Inventory
+	var items []ListInventoryByLocationRow
 	for rows.Next() {
-		var i Inventory
+		var i ListInventoryByLocationRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.ProductTypeID,
 			&i.LocationID,
 			&i.Stock,
+			&i.Name,
+			&i.Code,
+			&i.Img,
 		); err != nil {
 			return nil, err
 		}

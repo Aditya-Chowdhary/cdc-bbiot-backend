@@ -18,6 +18,7 @@ func (s *Server) NewProduct(ctx *gin.Context) {
 		ProductCode string `json:"product_code" binding:"required"`
 		Location    string `json:"location" binding:"required"`
 		Stock       int    `json:"stock"`
+		Img         string `json:"img"`
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -40,6 +41,7 @@ func (s *Server) NewProduct(ctx *gin.Context) {
 	product_type, err := qtx.NewProduct(ctx, database.NewProductParams{
 		Name: request.ProductName,
 		Code: request.ProductCode,
+		Img:  []byte(request.Img),
 	})
 	if err != nil {
 		var e *pgconn.PgError
