@@ -11,7 +11,7 @@ AND location_id = $2
 RETURNING *;
 
 -- name: ListInventoryByLocation :many
-SELECT i.id, i.product_type_id, i.location_id, i.stock, pt.name, pt.code, pt.img
+SELECT i.id, i.product_type_id, i.location_id, i.stock, pt.name, pt.code, pt.img_url
 FROM inventory i
 inner join product_types pt on i.product_type_id = pt.id
 WHERE location_id = $1;

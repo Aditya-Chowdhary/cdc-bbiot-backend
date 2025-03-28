@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS locations (
     address text NOT NULL,
     site_desc text NOT NULL,
     additional_notes text,
-    img text,
+    img_url text NOT NULL,
     -- created_at timestamp with time zone NOT NULL DEFAULT NOW(),
 	-- updated_at timestamp with time zone DEFAULT Now() NOT NULL,
     PRIMARY KEY (id)

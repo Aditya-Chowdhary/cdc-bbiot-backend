@@ -1,5 +1,5 @@
 -- name: NewProduct :one
-INSERT INTO product_types (name, code, img)
+INSERT INTO product_types (name, code, img_url)
 VALUES ($1, $2, $3)
 RETURNING *;
 

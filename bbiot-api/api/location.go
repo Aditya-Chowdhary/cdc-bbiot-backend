@@ -21,10 +21,20 @@ func (s *Server) AddLocation(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"error": fmt.Sprintf("bad input: %s", err.Error()),
 		})
 		return
 	}
+
+	fmt.Println("Uploading to s3")
+	url, err := s.uploadImg(request.Img, "locations", request.Location)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("error uploading to s3: %s", err.Error()),
+		})
+		return
+	}
+	fmt.Printf("Done uploading to s3: %s\n", url)
 
 	dbx := database.New(s.db)
 	location, err := dbx.AddLocation(ctx, database.AddLocationParams{
@@ -32,7 +42,7 @@ func (s *Server) AddLocation(ctx *gin.Context) {
 		Address:         request.Address,
 		SiteDesc:        request.Site_Desc,
 		AdditionalNotes: &request.Notes,
-		Img:             &request.Img,
+		ImgUrl:          &url,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

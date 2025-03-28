@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"os"
 
 	"github.com/GDGVIT/bbiot-backend/internal/auth"
 	"github.com/GDGVIT/bbiot-backend/internal/database"
@@ -13,16 +14,20 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Server struct {
 	Environment string
 	port        int
 
-	db *pgxpool.Pool
-	s3 *s3.S3
+	db       *pgxpool.Pool
+	s3       *s3.S3
+	uploader *s3manager.Uploader
 }
 
 func NewServer() *http.Server {
@@ -34,12 +39,13 @@ func NewServer() *http.Server {
 	database.AutoMigrate()
 	log.Printf("Database initalised")
 
-	s3 := InitialiseS3()
+	s3, uploader := InitialiseS3()
 
 	News := Server{
-		port: 8080,
-		db:   dbpool,
-		s3:   s3,
+		port:     8080,
+		db:       dbpool,
+		s3:       s3,
+		uploader: uploader,
 	}
 
 	server := &http.Server{
@@ -54,12 +60,18 @@ func NewServer() *http.Server {
 
 }
 
-func InitialiseS3() *s3.S3 {
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("eu-north-1"),
-	}))
-	s3Client := s3.New(sess)
-	return s3Client
+func InitialiseS3() (*s3.S3, *s3manager.Uploader) {
+	sess, err := session.NewSession(&aws.Config{
+		Region:      aws.String(os.Getenv("AWS_REGION")),
+		Credentials: credentials.NewStaticCredentials(os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY"), ""),
+	})
+	if err != nil {
+		return nil, nil
+	}
+
+	svc := s3.New(sess)
+	uploader := s3manager.NewUploader(sess)
+	return svc, uploader
 }
 
 func (s *Server) RegisterRoutes() http.Handler {

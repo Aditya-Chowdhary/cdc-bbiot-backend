@@ -10,7 +10,7 @@ import (
 )
 
 const listInventoryByLocation = `-- name: ListInventoryByLocation :many
-SELECT i.id, i.product_type_id, i.location_id, i.stock, pt.name, pt.code, pt.img
+SELECT i.id, i.product_type_id, i.location_id, i.stock, pt.name, pt.code, pt.img_url
 FROM inventory i
 inner join product_types pt on i.product_type_id = pt.id
 WHERE location_id = $1
@@ -23,7 +23,7 @@ type ListInventoryByLocationRow struct {
 	Stock         int32   `json:"stock"`
 	Name          string  `json:"name"`
 	Code          string  `json:"code"`
-	Img           *string `json:"img"`
+	ImgUrl        *string `json:"img_url"`
 }
 
 func (q *Queries) ListInventoryByLocation(ctx context.Context, locationID int64) ([]ListInventoryByLocationRow, error) {
@@ -42,7 +42,7 @@ func (q *Queries) ListInventoryByLocation(ctx context.Context, locationID int64)
 			&i.Stock,
 			&i.Name,
 			&i.Code,
-			&i.Img,
+			&i.ImgUrl,
 		); err != nil {
 			return nil, err
 		}

@@ -10,7 +10,7 @@ import (
 )
 
 const getProductTypeByName = `-- name: GetProductTypeByName :one
-SELECT id, name, code, img
+SELECT id, name, code, img_url
 FROM product_types
 WHERE name=$1
 `
@@ -22,13 +22,13 @@ func (q *Queries) GetProductTypeByName(ctx context.Context, name string) (Produc
 		&i.ID,
 		&i.Name,
 		&i.Code,
-		&i.Img,
+		&i.ImgUrl,
 	)
 	return i, err
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT id, name, code, img
+SELECT id, name, code, img_url
 FROM product_types
 ORDER BY id
 `
@@ -46,7 +46,7 @@ func (q *Queries) ListProducts(ctx context.Context) ([]ProductType, error) {
 			&i.ID,
 			&i.Name,
 			&i.Code,
-			&i.Img,
+			&i.ImgUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -59,25 +59,25 @@ func (q *Queries) ListProducts(ctx context.Context) ([]ProductType, error) {
 }
 
 const newProduct = `-- name: NewProduct :one
-INSERT INTO product_types (name, code, img)
+INSERT INTO product_types (name, code, img_url)
 VALUES ($1, $2, $3)
-RETURNING id, name, code, img
+RETURNING id, name, code, img_url
 `
 
 type NewProductParams struct {
-	Name string  `json:"name"`
-	Code string  `json:"code"`
-	Img  *string `json:"img"`
+	Name   string  `json:"name"`
+	Code   string  `json:"code"`
+	ImgUrl *string `json:"img_url"`
 }
 
 func (q *Queries) NewProduct(ctx context.Context, arg NewProductParams) (ProductType, error) {
-	row := q.db.QueryRow(ctx, newProduct, arg.Name, arg.Code, arg.Img)
+	row := q.db.QueryRow(ctx, newProduct, arg.Name, arg.Code, arg.ImgUrl)
 	var i ProductType
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Code,
-		&i.Img,
+		&i.ImgUrl,
 	)
 	return i, err
 }

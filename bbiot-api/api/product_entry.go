@@ -38,10 +38,18 @@ func (s *Server) NewProduct(ctx *gin.Context) {
 	defer tx.Rollback(ctx)
 	qtx := database.New(s.db).WithTx(tx)
 
+	url, err := s.uploadImg(request.Img, "products", request.ProductName)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("error uploading to s3: %s", err.Error()),
+		})
+		return
+	}
+
 	product_type, err := qtx.NewProduct(ctx, database.NewProductParams{
-		Name: request.ProductName,
-		Code: request.ProductCode,
-		Img:  &request.Img,
+		Name:   request.ProductName,
+		Code:   request.ProductCode,
+		ImgUrl: &url,
 	})
 	if err != nil {
 		var e *pgconn.PgError
