@@ -65,9 +65,9 @@ RETURNING id, name, code, img
 `
 
 type NewProductParams struct {
-	Name string `json:"name"`
-	Code string `json:"code"`
-	Img  []byte `json:"img"`
+	Name string  `json:"name"`
+	Code string  `json:"code"`
+	Img  *string `json:"img"`
 }
 
 func (q *Queries) NewProduct(ctx context.Context, arg NewProductParams) (ProductType, error) {

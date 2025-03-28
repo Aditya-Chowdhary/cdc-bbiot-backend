@@ -17,7 +17,7 @@ type Location struct {
 	Address         string  `json:"address"`
 	SiteDesc        string  `json:"site_desc"`
 	AdditionalNotes *string `json:"additional_notes"`
-	Img             []byte  `json:"img"`
+	Img             *string `json:"img"`
 }
 
 type ProductTagList struct {
@@ -27,10 +27,10 @@ type ProductTagList struct {
 }
 
 type ProductType struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
-	Code string `json:"code"`
-	Img  []byte `json:"img"`
+	ID   int64   `json:"id"`
+	Name string  `json:"name"`
+	Code string  `json:"code"`
+	Img  *string `json:"img"`
 }
 
 type User struct {

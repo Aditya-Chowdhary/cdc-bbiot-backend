@@ -20,7 +20,7 @@ type AddLocationParams struct {
 	Address         string  `json:"address"`
 	SiteDesc        string  `json:"site_desc"`
 	AdditionalNotes *string `json:"additional_notes"`
-	Img             []byte  `json:"img"`
+	Img             *string `json:"img"`
 }
 
 func (q *Queries) AddLocation(ctx context.Context, arg AddLocationParams) (Location, error) {

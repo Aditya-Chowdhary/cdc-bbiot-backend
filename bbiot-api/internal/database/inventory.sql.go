@@ -17,13 +17,13 @@ WHERE location_id = $1
 `
 
 type ListInventoryByLocationRow struct {
-	ID            int64  `json:"id"`
-	ProductTypeID int64  `json:"product_type_id"`
-	LocationID    int64  `json:"location_id"`
-	Stock         int32  `json:"stock"`
-	Name          string `json:"name"`
-	Code          string `json:"code"`
-	Img           []byte `json:"img"`
+	ID            int64   `json:"id"`
+	ProductTypeID int64   `json:"product_type_id"`
+	LocationID    int64   `json:"location_id"`
+	Stock         int32   `json:"stock"`
+	Name          string  `json:"name"`
+	Code          string  `json:"code"`
+	Img           *string `json:"img"`
 }
 
 func (q *Queries) ListInventoryByLocation(ctx context.Context, locationID int64) ([]ListInventoryByLocationRow, error) {

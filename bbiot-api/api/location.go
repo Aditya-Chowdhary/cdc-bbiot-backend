@@ -32,7 +32,7 @@ func (s *Server) AddLocation(ctx *gin.Context) {
 		Address:         request.Address,
 		SiteDesc:        request.Site_Desc,
 		AdditionalNotes: &request.Notes,
-		Img:             []byte(request.Img),
+		Img:             &request.Img,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

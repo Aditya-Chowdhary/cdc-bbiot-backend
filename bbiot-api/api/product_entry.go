@@ -41,7 +41,7 @@ func (s *Server) NewProduct(ctx *gin.Context) {
 	product_type, err := qtx.NewProduct(ctx, database.NewProductParams{
 		Name: request.ProductName,
 		Code: request.ProductCode,
-		Img:  []byte(request.Img),
+		Img:  &request.Img,
 	})
 	if err != nil {
 		var e *pgconn.PgError
