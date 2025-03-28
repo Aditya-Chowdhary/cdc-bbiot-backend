@@ -12,7 +12,11 @@ import (
 
 func (s *Server) AddLocation(ctx *gin.Context) {
 	var request struct {
-		Location string `json:"location" binding:"required"`
+		Location  string `json:"location" binding:"required"`
+		Address   string `json:"address" binding:"required"`
+		Site_Desc string `json:"site_desc" binding:"required"`
+		Notes     string `json:"notes"`
+		Img       string `json:"img"`
 	}
 
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -23,7 +27,13 @@ func (s *Server) AddLocation(ctx *gin.Context) {
 	}
 
 	dbx := database.New(s.db)
-	location, err := dbx.AddLocation(ctx, request.Location)
+	location, err := dbx.AddLocation(ctx, database.AddLocationParams{
+		Location:        request.Location,
+		Address:         request.Address,
+		SiteDesc:        request.Site_Desc,
+		AdditionalNotes: &request.Notes,
+		Img:             []byte(request.Img),
+	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("error while adding location: %s", err.Error()),

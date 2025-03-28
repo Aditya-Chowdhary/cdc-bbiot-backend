@@ -9,3 +9,8 @@ SET stock = stock + $3
 WHERE product_type_id = $1
 AND location_id = $2
 RETURNING *;
+
+-- name: ListInventoryByLocation :many
+SELECT id, product_type_id, location_id, stock
+FROM inventory
+WHERE location_id = $1;

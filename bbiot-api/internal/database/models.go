@@ -12,8 +12,12 @@ type Inventory struct {
 }
 
 type Location struct {
-	ID       int64  `json:"id"`
-	Location string `json:"location"`
+	ID              int64   `json:"id"`
+	Location        string  `json:"location"`
+	Address         string  `json:"address"`
+	SiteDesc        string  `json:"site_desc"`
+	AdditionalNotes *string `json:"additional_notes"`
+	Img             []byte  `json:"img"`
 }
 
 type ProductTagList struct {

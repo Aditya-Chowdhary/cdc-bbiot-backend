@@ -11,6 +11,10 @@ import (
 	"github.com/GDGVIT/bbiot-backend/internal/database"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 type Server struct {
@@ -18,6 +22,7 @@ type Server struct {
 	port        int
 
 	db *pgxpool.Pool
+	s3 *s3.S3
 }
 
 func NewServer() *http.Server {
@@ -29,9 +34,12 @@ func NewServer() *http.Server {
 	database.AutoMigrate()
 	log.Printf("Database initalised")
 
+	s3 := InitialiseS3()
+
 	News := Server{
 		port: 8080,
 		db:   dbpool,
+		s3:   s3,
 	}
 
 	server := &http.Server{
@@ -44,6 +52,14 @@ func NewServer() *http.Server {
 
 	return server
 
+}
+
+func InitialiseS3() *s3.S3 {
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String("eu-north-1"),
+	}))
+	s3Client := s3.New(sess)
+	return s3Client
 }
 
 func (s *Server) RegisterRoutes() http.Handler {

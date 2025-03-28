@@ -9,6 +9,37 @@ import (
 	"context"
 )
 
+const listInventoryByLocation = `-- name: ListInventoryByLocation :many
+SELECT id, product_type_id, location_id, stock
+FROM inventory
+WHERE location_id = $1
+`
+
+func (q *Queries) ListInventoryByLocation(ctx context.Context, locationID int64) ([]Inventory, error) {
+	rows, err := q.db.Query(ctx, listInventoryByLocation, locationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Inventory
+	for rows.Next() {
+		var i Inventory
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProductTypeID,
+			&i.LocationID,
+			&i.Stock,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const newInventoryProduct = `-- name: NewInventoryProduct :one
 INSERT INTO inventory (product_type_id, location_id, stock)
 VALUES ($1, $2, $3)

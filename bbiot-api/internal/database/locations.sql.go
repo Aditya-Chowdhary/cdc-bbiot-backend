@@ -10,15 +10,36 @@ import (
 )
 
 const addLocation = `-- name: AddLocation :one
-INSERT INTO locations(location)
-VALUEs ($1)
-RETURNING id, location
+INSERT INTO locations(location,address,site_desc,additional_notes, img)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, location, address, site_desc, additional_notes, img
 `
 
-func (q *Queries) AddLocation(ctx context.Context, location string) (Location, error) {
-	row := q.db.QueryRow(ctx, addLocation, location)
+type AddLocationParams struct {
+	Location        string  `json:"location"`
+	Address         string  `json:"address"`
+	SiteDesc        string  `json:"site_desc"`
+	AdditionalNotes *string `json:"additional_notes"`
+	Img             []byte  `json:"img"`
+}
+
+func (q *Queries) AddLocation(ctx context.Context, arg AddLocationParams) (Location, error) {
+	row := q.db.QueryRow(ctx, addLocation,
+		arg.Location,
+		arg.Address,
+		arg.SiteDesc,
+		arg.AdditionalNotes,
+		arg.Img,
+	)
 	var i Location
-	err := row.Scan(&i.ID, &i.Location)
+	err := row.Scan(
+		&i.ID,
+		&i.Location,
+		&i.Address,
+		&i.SiteDesc,
+		&i.AdditionalNotes,
+		&i.Img,
+	)
 	return i, err
 }
 
@@ -36,7 +57,7 @@ func (q *Queries) GetLocationByName(ctx context.Context, location string) (int64
 }
 
 const listLocations = `-- name: ListLocations :many
-SELECT id, location
+SELECT id, location, address, site_desc, additional_notes, img
 FROM locations
 ORDER BY location
 `
@@ -50,7 +71,14 @@ func (q *Queries) ListLocations(ctx context.Context) ([]Location, error) {
 	var items []Location
 	for rows.Next() {
 		var i Location
-		if err := rows.Scan(&i.ID, &i.Location); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Location,
+			&i.Address,
+			&i.SiteDesc,
+			&i.AdditionalNotes,
+			&i.Img,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

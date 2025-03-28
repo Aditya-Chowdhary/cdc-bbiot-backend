@@ -1,11 +1,11 @@
 -- name: ListLocations :many
-SELECT id, location
+SELECT id, location, address, site_desc, additional_notes, img
 FROM locations
 ORDER BY location;
 
 -- name: AddLocation :one
-INSERT INTO locations(location)
-VALUEs ($1)
+INSERT INTO locations(location,address,site_desc,additional_notes, img)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetLocationByName :one
