@@ -11,28 +11,11 @@ import (
 )
 
 func (s *Server) TransferList(ctx *gin.Context) {
-	var request struct {
-		Location string `json:"location" binding:"required"`
-	}
+	location := ctx.Param("location")
 
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
+	dbx := database.New(s.db)
 
-	tx, err := s.db.Begin(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	defer tx.Rollback(ctx)
-	qtx := database.New(s.db).WithTx(tx)
-
-	locationID, err := qtx.GetLocationByName(ctx, request.Location)
+	locationID, err := dbx.GetLocationByName(ctx, location)
 	if errors.Is(err, pgx.ErrNoRows) {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "location not found",
@@ -45,7 +28,7 @@ func (s *Server) TransferList(ctx *gin.Context) {
 		return
 	}
 
-	inventory, err := qtx.ListInventoryByLocation(ctx, locationID)
+	inventory, err := dbx.ListInventoryByLocation(ctx, locationID)
 	if errors.Is(err, pgx.ErrNoRows) {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "no objects in location",
@@ -58,16 +41,53 @@ func (s *Server) TransferList(ctx *gin.Context) {
 		return
 	}
 
-	err = tx.Commit(ctx)
+	ctx.JSON(http.StatusOK, gin.H{
+		"inventory": inventory,
+	})
+}
+
+func (s *Server) TransferDetails(ctx *gin.Context) {
+	location := ctx.Param("location")
+
+	objs, err := getJsonFile(s.s3, "jsonfiledatacache", "test.json")
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf("error while committing transaction: %s", err.Error()),
+			"error": fmt.Sprintf("could not retrive json file: %s", err.Error()),
+		})
+		return
+	}
+
+	dbx := database.New(s.db)
+
+	locationID, err := dbx.GetLocationByName(ctx, location)
+	if errors.Is(err, pgx.ErrNoRows) {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "location not found",
+		})
+		return
+	} else if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("internal server error: %s", err.Error()),
+		})
+		return
+	}
+
+	inventory, err := dbx.ListInventoryByLocation(ctx, locationID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "no objects in location",
+		})
+		return
+	} else if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("internal server error: %s", err.Error()),
 		})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"inventory": inventory,
+		"objects":   objs,
 	})
 }
 

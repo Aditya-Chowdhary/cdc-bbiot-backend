@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 	"os"
+	"time"
 
 	"github.com/GDGVIT/bbiot-backend/internal/auth"
 	"github.com/GDGVIT/bbiot-backend/internal/database"
@@ -89,7 +89,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/products", s.GetAllProducts)
 	r.POST("/products/update", s.UpdateInventory)
 
-	r.GET("/inventory", s.TransferList)
+	r.GET("/inventory/:location", s.TransferList)
+	r.GET("/details/:location", s.TransferDetails)
 
 	r.POST("/locations/new", s.AddLocation)
 	r.GET("/locations", s.GetAllLocations)
