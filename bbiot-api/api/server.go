@@ -96,6 +96,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.GET("/locations", s.GetAllLocations)
 	r.POST("/locations/user", s.MapUserToLocation)
 
+	r.GET("/cv", s.ComputerVision)
+
 	return r
 }
 
